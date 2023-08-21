@@ -260,7 +260,7 @@ class GroundSchedule(object):
                     scan,
                     subscan,
                 ) = line.split()
-            else:
+            elif nfield == 23:
                 # Optional (old) verbose format
                 (
                     start_date,
@@ -287,6 +287,36 @@ class GroundSchedule(object):
                     scan,
                     subscan,
                 ) = line.split()
+            elif nfield == 24:
+                # Optional verbose format
+                (
+                    start_date,
+                    start_time,
+                    stop_date,
+                    stop_time,
+                    mjdstart,
+                    mjdstop,
+                    boresight_angle,
+                    name,
+                    azmin,
+                    azmax,
+                    el,
+                    rs,
+                    sun_el1,
+                    sun_az1,
+                    sun_el2,
+                    sun_az2,
+                    moon_el1,
+                    moon_az1,
+                    moon_el2,
+                    moon_az2,
+                    moon_phase,
+                    scan,
+                    subscan,
+                    ctime,
+                ) = line.split()
+            else:
+                raise RuntimeError(f"Don't know how to parse a schedule file with {nfield} columns.")
             start_time = start_date + " " + start_time
             stop_time = stop_date + " " + stop_time
             try:
