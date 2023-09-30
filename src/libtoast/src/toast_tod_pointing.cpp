@@ -107,7 +107,7 @@ void toast::stokes_weights(double eps, double cal, std::string const & mode,
         double * bx = buf1.data();
         double * by = buf2.data();
 
-        #pragma omp simd
+        //DEBUG #pragma omp simd
         for (size_t i = 0; i < n; ++i) {
             size_t off = 3 * i;
             by[i] = orient[off + 0] * dir[off + 1] - orient[off + 1] *
