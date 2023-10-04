@@ -4,6 +4,7 @@
 
 import os
 
+import healpy as hp
 import numpy as np
 import numpy.testing as nt
 from astropy import units as u
@@ -29,7 +30,7 @@ class PixelsHealpixTest(MPITestCase):
         self.outdir = create_outdir(self.comm, fixture_name)
 
     def test_pixels_healpix(self):
-        nsample = 2
+        nsample = 1
         quat_index = np.array([0], dtype=np.int32)
         quats = np.zeros([1, nsample, 4], dtype=np.float64)
         quats[0][0] = np.array([
@@ -43,7 +44,7 @@ class PixelsHealpixTest(MPITestCase):
         pixel_index = np.array([0], dtype=np.int32)
         pixels = np.zeros([1, nsample], dtype=np.int64)
         times = np.arange(nsample)
-        intervals = IntervalList(times, samplespans=[(0, 1000000000)])
+        intervals = IntervalList(times, samplespans=[(0, nsample - 1)])
         nside = 4096
         npix = 12 * nside**2
         npix_submap = 3072
@@ -66,7 +67,12 @@ class PixelsHealpixTest(MPITestCase):
             nest,
             use_accel,
         )
+        bad = pixels[0] >= npix
+        for samp in np.arange(nsample)[bad]:
+            print(f"{samp}: {quats[0][samp]} -> {pixels[0][samp]}", flush=True)
 
-        assert np.all(pixels < npix)
-        
+        if np.count_nonzero(bad) > 0:
+            print(f"Some pointings failed")
+            self.assertTrue(False)
+
         return

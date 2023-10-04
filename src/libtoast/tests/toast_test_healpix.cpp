@@ -8,32 +8,37 @@
 #include <cmath>
 
 
-TEST_F(TOASThealpixTest, pixelops) {
-    // These numbers were generated with the included script.
+// ================= NOTICE =================================================
+// This functionality has been migrated to the python tests.
+// This file will be removed in a future refactor.
+// ==========================================================================
 
-    #include "data_healpix.cpp"
+// TEST_F(TOASThealpixTest, pixelops) {
+//     // These numbers were generated with the included script.
 
-    toast::HealpixPixels hpx(nside);
+//     #include "data_healpix.cpp"
 
-    int64_t comp_pixring[ntest];
-    int64_t comp_pixnest[ntest];
-    double comp_theta[ntest];
-    double comp_phi[ntest];
+//     toast::HealpixPixels hpx(nside);
 
-    hpx.ang2ring(ntest, theta, phi, comp_pixring);
-    for (int64_t i = 0; i < ntest; ++i) {
-        // std::cerr << i << ": (" << theta[i] << "," << phi[i] << ") = " <<
-        // pixring[i] << " =? " << comp_pixring[i] << std::endl;
-        EXPECT_EQ(pixring[i], comp_pixring[i]);
-    }
+//     int64_t comp_pixring[ntest];
+//     int64_t comp_pixnest[ntest];
+//     double comp_theta[ntest];
+//     double comp_phi[ntest];
 
-    hpx.ang2nest(ntest, theta, phi, comp_pixnest);
-    for (int64_t i = 0; i < ntest; ++i) {
-        EXPECT_EQ(pixnest[i], comp_pixnest[i]);
-    }
+//     hpx.ang2ring(ntest, theta, phi, comp_pixring);
+//     for (int64_t i = 0; i < ntest; ++i) {
+//         // std::cerr << i << ": (" << theta[i] << "," << phi[i] << ") = " <<
+//         // pixring[i] << " =? " << comp_pixring[i] << std::endl;
+//         EXPECT_EQ(pixring[i], comp_pixring[i]);
+//     }
 
-    hpx.ring2nest(ntest, comp_pixring, comp_pixnest);
-    for (int64_t i = 0; i < ntest; ++i) {
-        EXPECT_EQ(pixnest[i], comp_pixnest[i]);
-    }
-}
+//     hpx.ang2nest(ntest, theta, phi, comp_pixnest);
+//     for (int64_t i = 0; i < ntest; ++i) {
+//         EXPECT_EQ(pixnest[i], comp_pixnest[i]);
+//     }
+
+//     hpx.ring2nest(ntest, comp_pixring, comp_pixnest);
+//     for (int64_t i = 0; i < ntest; ++i) {
+//         EXPECT_EQ(pixnest[i], comp_pixnest[i]);
+//     }
+// }
