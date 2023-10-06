@@ -18,8 +18,11 @@
 // not supporting loadable device objects in shared libraries.
 // So we must duplicate this across compilation units.
 
-void stokes_weights_qa_rotate(double const * q_in, double const * v_in,
-                              double * v_out) {
+void stokes_weights_qa_rotate(
+    double const * q_in,
+    double const * v_in,
+    double * v_out
+) {
     // The input quaternion has already been normalized on the host.
 
     double xw = q_in[3] * q_in[0];
@@ -46,7 +49,7 @@ void stokes_weights_qa_rotate(double const * q_in, double const * v_in,
 
 void stokes_weights_alpha(
     double const * quats,
-    double * alpha
+    double & alpha
 ) {
     const double xaxis[3] = {1.0, 0.0, 0.0};
     const double zaxis[3] = {0.0, 0.0, 1.0};
@@ -56,10 +59,10 @@ void stokes_weights_alpha(
     stokes_weights_qa_rotate(quats, zaxis, vd);
     stokes_weights_qa_rotate(quats, xaxis, vo);
 
-    double ang_xy = atan2(vd[1], vd[0]);
-    double vm_x = vd[2] * cos(ang_xy);
-    double vm_y = vd[2] * sin(ang_xy);
-    double vm_z = -sqrt(1.0 - vd[2] * vd[2]);
+    double ang_xy = ::atan2(vd[1], vd[0]);
+    double vm_x = vd[2] * ::cos(ang_xy);
+    double vm_y = vd[2] * ::sin(ang_xy);
+    double vm_z = - ::sqrt(1.0 - vd[2] * vd[2]);
 
     double alpha_y = (
         vd[0] * (vm_y * vo[2] - vm_z * vo[1]) - vd[1] * (vm_x * vo[2] - vm_z * vo[0]) +
@@ -67,72 +70,72 @@ void stokes_weights_alpha(
     );
     double alpha_x = (vm_x * vo[0] + vm_y * vo[1] + vm_z * vo[2]);
 
-    (*alpha) = atan2(alpha_y, alpha_x);
+    alpha = ::atan2(alpha_y, alpha_x);
     return;
 }
 
 void stokes_weights_IQU_inner(
-    double cal,
+    double const & cal,
     int32_t const * quat_index,
     int32_t const * weight_index,
     double const * quats,
     double const * epsilon,
-    double * weights,
-    int64_t isamp,
-    int64_t n_samp,
-    int64_t idet,
-    double U_sign
+    int64_t const & isamp,
+    int64_t const & n_samp,
+    int64_t const & idet,
+    double const & U_sign,
+    double * weights
 ) {
     double eta = (1.0 - epsilon[idet]) / (1.0 + epsilon[idet]);
     int32_t q_indx = quat_index[idet];
     int32_t w_indx = weight_index[idet];
-    int64_t off = (q_indx * 4 * n_samp) + 4 * isamp;
+    int64_t qoff = (q_indx * 4 * n_samp) + 4 * isamp;
 
     double alpha;
-    stokes_weights_alpha(&(quats[off]), &alpha);
+    stokes_weights_alpha(&(quats[qoff]), alpha);
 
     alpha *= 2.0;
-    double cang = cos(alpha);
-    double sang = sin(alpha);
+    double cang = ::cos(alpha);
+    double sang = ::sin(alpha);
 
-    off = (w_indx * 3 * n_samp) + 3 * isamp;
-    weights[off] = cal;
-    weights[off + 1] = cang * eta * cal;
-    weights[off + 2] = -sang * eta * cal * U_sign;
+    int64_t woff = (w_indx * 3 * n_samp) + 3 * isamp;
+    weights[woff] = cal;
+    weights[woff + 1] = cang * eta * cal;
+    weights[woff + 2] = sang * eta * cal * U_sign;
     return;
 }
 
 void stokes_weights_IQU_inner_hwp(
-    double cal,
+    double const & cal,
     int32_t const * quat_index,
     int32_t const * weight_index,
     double const * quats,
     double const * hwp,
     double const * epsilon,
     double const * gamma,
-    double * weights,
-    int64_t isamp,
-    int64_t n_samp,
-    int64_t idet,
-    double U_sign
+    int64_t const & isamp,
+    int64_t const & n_samp,
+    int64_t const & idet,
+    double const & U_sign,
+    double * weights
 ) {
     double eta = (1.0 - epsilon[idet]) / (1.0 + epsilon[idet]);
     int32_t q_indx = quat_index[idet];
     int32_t w_indx = weight_index[idet];
-    int64_t off = (q_indx * 4 * n_samp) + 4 * isamp;
+    int64_t qoff = (q_indx * 4 * n_samp) + 4 * isamp;
 
     double alpha;
-    stokes_weights_alpha(&(quats[off]), &alpha);
+    stokes_weights_alpha(&(quats[qoff]), alpha);
 
-    double ang = 2.0 * (alpha + 2.0 * (hwp[isamp] - gamma[idet]));
+    double ang = 2.0 * (2.0 * (gamma[idet] - hwp[isamp]) - alpha);
 
-    double cang = cos(ang);
-    double sang = sin(ang);
+    double cang = ::cos(ang);
+    double sang = ::sin(ang);
 
-    off = (w_indx * 3 * n_samp) + 3 * isamp;
-    weights[off] = cal;
-    weights[off + 1] = cang * eta * cal;
-    weights[off + 2] = -sang * eta * cal * U_sign;
+    int64_t woff = (w_indx * 3 * n_samp) + 3 * isamp;
+    weights[woff] = cal;
+    weights[woff + 1] = cang * eta * cal;
+    weights[woff + 2] = -sang * eta * cal * U_sign;
     return;
 }
 
@@ -273,11 +276,11 @@ void init_ops_stokes_weights(py::module & m) {
                                         raw_weight_index,
                                         dev_quats,
                                         raw_epsilon,
-                                        dev_weights,
                                         adjusted_isamp,
                                         n_samp,
                                         idet,
-                                        U_sign
+                                        U_sign,
+                                        dev_weights
                                     );
                                 }
                             }
@@ -312,11 +315,11 @@ void init_ops_stokes_weights(py::module & m) {
                                         dev_hwp,
                                         raw_epsilon,
                                         raw_gamma,
-                                        dev_weights,
                                         adjusted_isamp,
                                         n_samp,
                                         idet,
-                                        U_sign
+                                        U_sign,
+                                        dev_weights
                                     );
                                 }
                             }
@@ -330,7 +333,7 @@ void init_ops_stokes_weights(py::module & m) {
                     // No HWP
                     for (int64_t idet = 0; idet < n_det; idet++) {
                         for (int64_t iview = 0; iview < n_view; iview++) {
-                            #pragma omp parallel for default(shared)
+                            #pragma omp parallel for default(shared) schedule(static)
                             for (
                                 int64_t isamp = raw_intervals[iview].first;
                                 isamp <= raw_intervals[iview].last;
@@ -342,11 +345,11 @@ void init_ops_stokes_weights(py::module & m) {
                                     raw_weight_index,
                                     raw_quats,
                                     raw_epsilon,
-                                    raw_weights,
                                     isamp,
                                     n_samp,
                                     idet,
-                                    U_sign
+                                    U_sign,
+                                    raw_weights
                                 );
                             }
                         }
@@ -355,7 +358,7 @@ void init_ops_stokes_weights(py::module & m) {
                     // We are using a HWP
                     for (int64_t idet = 0; idet < n_det; idet++) {
                         for (int64_t iview = 0; iview < n_view; iview++) {
-                            #pragma omp parallel for default(shared)
+                            #pragma omp parallel for default(shared) schedule(static)
                             for (
                                 int64_t isamp = raw_intervals[iview].first;
                                 isamp <= raw_intervals[iview].last;
@@ -369,11 +372,11 @@ void init_ops_stokes_weights(py::module & m) {
                                     raw_hwp,
                                     raw_epsilon,
                                     raw_gamma,
-                                    raw_weights,
                                     isamp,
                                     n_samp,
                                     idet,
-                                    U_sign
+                                    U_sign,
+                                    raw_weights
                                 );
                             }
                         }
@@ -470,7 +473,7 @@ void init_ops_stokes_weights(py::module & m) {
             } else {
                 for (int64_t idet = 0; idet < n_det; idet++) {
                     for (int64_t iview = 0; iview < n_view; iview++) {
-                        #pragma omp parallel for default(shared)
+                        #pragma omp parallel for default(shared) schedule(static)
                         for (
                             int64_t isamp = raw_intervals[iview].first;
                             isamp <= raw_intervals[iview].last;

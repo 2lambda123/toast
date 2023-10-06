@@ -146,12 +146,8 @@ class PointingHealpixTest(MPITestCase):
         )
         weights_ref = []
         for quat in quats:
-            # The sign of Stokes U in this check matches the HWP_algebra.pdf
-            # document for COSMO convention, however, there seems to be a
-            # discrepancy between that document and various other codes.
-            # Remove this note after fixing and before merging.
             theta, phi, psi = qa.to_iso_angles(quat)
-            weights_ref.append(np.array([1, np.cos(2 * psi), -np.sin(2 * psi)]))
+            weights_ref.append(np.array([1, np.cos(2 * psi), np.sin(2 * psi)]))
         weights_ref = np.vstack(weights_ref)
         failed = False
         for w1, w2, psi, quat in zip(weights_ref, weights, psivec, quats):
@@ -169,14 +165,24 @@ class PointingHealpixTest(MPITestCase):
         nside = 64
         nest = True
         psivec = np.radians([-180, -135, -90, -45, 0, 45, 90, 135, 180])
+        expected_Q = np.array([1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0, 1.0])
+        expected_U = np.array([0.0, 1.0, 0.0, -1.0, 0.0, 1.0, 0.0, -1.0, 0.0])
         nsamp = len(psivec)
 
-        eps = 0.0
+        eps = np.array([0.0])
+        gamma = np.array([0.0])
         cal = 1.0
         mode = "IQU"
         nnz = 3
 
         flags = np.zeros(nsamp, dtype=np.uint8)
+        zero_index = np.array([0], dtype=np.int32)
+        zero_flags = np.zeros(nsamp, dtype=np.uint8)
+        faketimes = -1.0 * np.ones(nsamp, dtype=np.float64)
+        intervals = IntervalList(
+            faketimes, samplespans=[(0, nsamp - 1)]
+        )
+
         pix = 49103
         theta, phi = hp.pix2ang(nside, pix, nest=nest)
         xaxis, yaxis, zaxis = np.eye(3)
@@ -189,59 +195,64 @@ class PointingHealpixTest(MPITestCase):
             quats.append(qa.mult(pixrot, psirot))
         quats = np.vstack(quats)
 
-        # # First with HWP angle == 0.0
-        # hwpang = np.zeros(nsamp)
-        # weights_zero = np.zeros([nsamp, nnz], dtype=np.float64)
-        # stokes_weights(
-        #     eps,
-        #     cal,
-        #     mode,
-        #     quats.reshape(-1),
-        #     hwpang,
-        #     flags,
-        #     weights_zero.reshape(-1),
-        # )
+        # First with HWP angle == 0.0
+        hwpang = np.zeros(nsamp)
+        weights_zero = np.zeros([nsamp, nnz], dtype=np.float64)
 
-        # # Now passing hwpang == None
-        # weights_none = np.zeros([nsamp, nnz], dtype=np.float64)
-        # stokes_weights(
-        #     eps,
-        #     cal,
-        #     mode,
-        #     quats.reshape(-1),
-        #     None,
-        #     flags,
-        #     weights_none.reshape(-1),
-        # )
-        # # print("")
-        # # for i in range(nsamp):
-        # #     print(
-        # #         "HWP zero:  {} {} | {} {} {}".format(
-        # #             psivec[i],
-        # #             pixels_zero[i],
-        # #             weights_zero[i][0],
-        # #             weights_zero[i][1],
-        # #             weights_zero[i][2],
-        # #         )
-        # #     )
-        # #     print(
-        # #         "    none:  {} {} | {} {} {}".format(
-        # #             psivec[i],
-        # #             pixels_none[i],
-        # #             weights_none[i][0],
-        # #             weights_none[i][1],
-        # #             weights_none[i][2],
-        # #         )
-        # #     )
-        # failed = False
+        stokes_weights_IQU(
+            zero_index,
+            quats.reshape(1, nsamp, 4),
+            zero_index,
+            weights_zero.reshape(1, nsamp, nnz),
+            hwpang,
+            intervals.data,
+            eps,
+            gamma,
+            cal,
+            False,
+            False,
+        )
 
-        # if not np.allclose(weights_zero, weights_none):
-        #     print(
-        #         "HWP weights do not agree {} != {}".format(weights_zero, weights_none)
-        #     )
-        #     failed = True
+        # Now passing hwpang == None
+        weights_none = np.zeros([nsamp, nnz], dtype=np.float64)
+        stokes_weights_IQU(
+            zero_index,
+            quats.reshape(1, nsamp, 4),
+            zero_index,
+            weights_none.reshape(1, nsamp, nnz),
+            np.zeros(1),
+            intervals.data,
+            eps,
+            gamma,
+            cal,
+            False,
+            False,
+        )
 
-        # self.assertFalse(failed)
+        failed = False
+        if not np.allclose(weights_zero[:, 1], expected_Q):
+            msg = f"Q weights_zero do not match expected values {weights_zero[:, 1]}"
+            msg += f" != {expected_Q}"
+            print(msg)
+            failed = True
+        if not np.allclose(weights_zero[:, 2], expected_U):
+            msg = f"U weights_zero do not match expected values {weights_zero[:, 1]}"
+            msg += f" != {expected_U}"
+            print(msg)
+            failed = True
+
+        if not np.allclose(weights_none[:, 1], expected_Q):
+            msg = f"Q weights_none do not match expected values {weights_none[:, 1]}"
+            msg += f" != {expected_Q}"
+            print(msg)
+            failed = True
+        if not np.allclose(weights_none[:, 2], expected_U):
+            msg = f"U weights_none do not match expected values {weights_none[:, 1]}"
+            msg += f" != {expected_U}"
+            print(msg)
+            failed = True
+
+        self.assertFalse(failed)
         return
 
     def test_hpix_simple(self):

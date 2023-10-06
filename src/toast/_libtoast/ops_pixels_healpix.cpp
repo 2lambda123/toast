@@ -687,7 +687,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 vec, "vec", 2, temp_shape, {n_samp, 3}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_ang2vec(raw_theta[isamp], raw_phi[isamp], &(raw_vec[3 * isamp]));
             }
@@ -715,7 +715,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 phi, "phi", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_vec2ang(&(raw_vec[3 * isamp]), raw_theta[isamp], raw_phi[isamp]);
             }
@@ -751,7 +751,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 pix, "pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_ang2nest(
                     nside,
@@ -794,7 +794,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 pix, "pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_ang2ring(
                     nside,
@@ -833,7 +833,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 pix, "pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_vec2nest(
                     nside,
@@ -871,7 +871,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 pix, "pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_vec2ring(
                     nside,
@@ -911,7 +911,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 nest_pix, "nest_pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_ring2nest(
                     nside,
@@ -953,7 +953,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 ring_pix, "ring_pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_nest2ring(
                     nside,
@@ -1006,7 +1006,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 out_pix, "out_pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_degrade_ring(
                     in_nside,
@@ -1046,7 +1046,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 out_pix, "out_pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_degrade_nest(
                     degrade_factor,
@@ -1095,7 +1095,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 out_pix, "out_pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_upgrade_ring(
                     in_nside,
@@ -1135,7 +1135,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 out_pix, "out_pix", 1, temp_shape, {n_samp}
             );
 
-            #pragma omp parallel for default(shared)
+            #pragma omp parallel for default(shared) schedule(static)
             for (int64_t isamp = 0; isamp < n_samp; isamp++) {
                 hpix_upgrade_nest(
                     upgrade_factor,
@@ -1350,7 +1350,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 if (nest) {
                     for (int64_t idet = 0; idet < n_det; idet++) {
                         for (int64_t iview = 0; iview < n_view; iview++) {
-                            #pragma omp parallel for default(shared)
+                            #pragma omp parallel for default(shared) schedule(static)
                             for (
                                 int64_t isamp = raw_intervals[iview].first;
                                 isamp <= raw_intervals[iview].last;
@@ -1379,7 +1379,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 } else {
                     for (int64_t idet = 0; idet < n_det; idet++) {
                         for (int64_t iview = 0; iview < n_view; iview++) {
-                            #pragma omp parallel for default(shared)
+                            #pragma omp parallel for default(shared) schedule(static)
                             for (
                                 int64_t isamp = raw_intervals[iview].first;
                                 isamp <= raw_intervals[iview].last;
