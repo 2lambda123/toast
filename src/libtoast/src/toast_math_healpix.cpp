@@ -28,7 +28,7 @@ void toast::healpix_ang2vec(int64_t n, double const * theta,
     }
     if (toast::is_aligned(theta) && toast::is_aligned(phi) &&
         toast::is_aligned(vec)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             int64_t offset = 3 * i;
             double sintheta = ::sin(theta[i]);
@@ -61,7 +61,7 @@ void toast::healpix_vec2ang(int64_t n, double const * vec, double * theta,
     double eps = std::numeric_limits <double>::epsilon();
     if (toast::is_aligned(theta) && toast::is_aligned(phi) &&
         toast::is_aligned(vec)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             int64_t offset = 3 * i;
             double norm = 1.0 / ::sqrt(vec[offset] * vec[offset]
@@ -103,7 +103,7 @@ void toast::healpix_vecs2angpa(int64_t n, double const * vec, double * theta,
     }
     if (toast::is_aligned(vec) && toast::is_aligned(theta) &&
         toast::is_aligned(phi) && toast::is_aligned(pa)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             int64_t offset = 6 * i;
             double dx = vec[offset];
@@ -255,7 +255,7 @@ void toast::HealpixPixels::vec2zphi(int64_t n, double const * vec,
     if (toast::is_aligned(vec) && toast::is_aligned(phi) &&
         toast::is_aligned(region) && toast::is_aligned(z)
         && toast::is_aligned(rtz)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             int64_t offset = 3 * i;
 
@@ -323,7 +323,7 @@ void toast::HealpixPixels::theta2z(int64_t n, double const * theta,
 
     if (toast::is_aligned(theta) && toast::is_aligned(region)
         && toast::is_aligned(z) && toast::is_aligned(rtz)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             // region encodes BOTH the sign of Z and whether its
             // absolute value is greater than 2/3.
@@ -370,7 +370,7 @@ void toast::HealpixPixels::zphi2nest(int64_t n, double const * phi,
     if (toast::is_aligned(phi) && toast::is_aligned(pix) &&
         toast::is_aligned(region) && toast::is_aligned(z)
         && toast::is_aligned(rtz)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             double ph = phi[i];
             if (fabs(ph) < eps) {
@@ -535,7 +535,7 @@ void toast::HealpixPixels::zphi2ring(int64_t n, double const * phi,
     if (toast::is_aligned(phi) && toast::is_aligned(pix) &&
         toast::is_aligned(region) && toast::is_aligned(z)
         && toast::is_aligned(rtz)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             double ph = phi[i];
             if (fabs(ph) < eps) {
@@ -732,7 +732,7 @@ void toast::HealpixPixels::ring2nest(int64_t n, int64_t const * ringpix,
         throw std::runtime_error(msg.c_str());
     }
     if (toast::is_aligned(ringpix) && toast::is_aligned(nestpix)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             int64_t fc;
             uint64_t x, y;
@@ -913,7 +913,7 @@ void toast::HealpixPixels::nest2ring(int64_t n, int64_t const * nestpix,
         throw std::runtime_error(msg.c_str());
     }
     if (toast::is_aligned(ringpix) && toast::is_aligned(nestpix)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             int64_t fc;
             uint64_t x, y;
@@ -1041,7 +1041,7 @@ void toast::HealpixPixels::degrade_nest(int factor, int64_t n,
     int64_t shift = 2 * factor;
 
     if (toast::is_aligned(inpix) && toast::is_aligned(outpix)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             outpix[i] = inpix[i] >> shift;
         }
@@ -1091,7 +1091,7 @@ void toast::HealpixPixels::upgrade_nest(int factor, int64_t n,
     int64_t shift = 2 * factor;
 
     if (toast::is_aligned(inpix) && toast::is_aligned(outpix)) {
-        //DEBUG #pragma omp simd
+        #pragma omp simd
         for (int64_t i = 0; i < n; ++i) {
             outpix[i] = inpix[i] << shift;
         }
