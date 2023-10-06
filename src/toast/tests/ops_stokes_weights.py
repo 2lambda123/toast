@@ -116,10 +116,11 @@ class SimStokesWeightsTest(MPITestCase):
                     )
                     done_plot = True
 
-                # Compute the expected values for all timestream samples (COSMO convention)
-                # for the 4 detectors.  The first local pixel has a detector aligned with
-                # the meridian and the other is orthogonal.  The second local pixel is
-                # rotated 45 degrees.  The focalplane coordinate frame has its X-axis
+                # Compute the expected values for all timestream samples
+                # (COSMO convention) for the 4 detectors.  The first local
+                # pixel has a detector aligned with the meridian and the
+                # other is orthogonal.  The second local pixel is rotated
+                # 45 degrees.  The focalplane coordinate frame has its X-axis
                 # pointing South along the meridian.
                 det_alpha = np.array([0.0, np.pi / 2, np.pi / 4, 3 * np.pi / 4])
 
@@ -128,13 +129,13 @@ class SimStokesWeightsTest(MPITestCase):
                     expected = (
                         I_sky
                         + Q_sky * np.cos(2 * det_alpha)
-                        - U_sky * np.sin(2 * det_alpha)
+                        + U_sky * np.sin(2 * det_alpha)
                     )
                 else:
                     expected = (
                         I_sky
                         + Q_sky * np.cos(2 * (det_alpha - 2 * hang))
-                        + U_sky * np.sin(2 * (det_alpha - 2 * hang))
+                        - U_sky * np.sin(2 * (det_alpha - 2 * hang))
                     )
 
                 for ob in data.obs:

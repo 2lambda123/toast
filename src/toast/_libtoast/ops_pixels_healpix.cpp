@@ -1261,6 +1261,7 @@ void init_ops_pixels_healpix(py::module & m) {
                 {
                     if (nest) {
                         # pragma omp target teams distribute parallel for collapse(3) \
+                        schedule(static,1) \
                         is_device_ptr(                                                \
                         dev_pixels,                                                   \
                         dev_quats,                                                    \
@@ -1303,6 +1304,7 @@ void init_ops_pixels_healpix(py::module & m) {
                         }
                     } else {
                         # pragma omp target teams distribute parallel for collapse(3) \
+                        schedule(static,1) \
                         is_device_ptr(                                                \
                         dev_pixels,                                                   \
                         dev_quats,                                                    \

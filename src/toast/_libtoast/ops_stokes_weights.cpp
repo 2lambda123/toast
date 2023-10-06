@@ -252,6 +252,7 @@ void init_ops_stokes_weights(py::module & m) {
                     if (!use_hwp) {
                         // No HWP
                         # pragma omp target teams distribute parallel for collapse(3) \
+                        schedule(static,1) \
                         is_device_ptr(                                                \
                         dev_weights,                                                  \
                         dev_quats,                                                    \
@@ -288,6 +289,7 @@ void init_ops_stokes_weights(py::module & m) {
                     } else {
                         // We have a HWP
                         # pragma omp target teams distribute parallel for collapse(3) \
+                        schedule(static,1) \
                         is_device_ptr(                                                \
                         dev_weights,                                                  \
                         dev_quats,                                                    \
@@ -445,6 +447,7 @@ void init_ops_stokes_weights(py::module & m) {
                 )
                 {
                     # pragma omp target teams distribute parallel for collapse(3) \
+                    schedule(static,1) \
                     is_device_ptr(                                                \
                     dev_weights,                                                  \
                     dev_intervals                                                 \
